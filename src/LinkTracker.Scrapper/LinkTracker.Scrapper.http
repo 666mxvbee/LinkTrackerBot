@@ -1,0 +1,6 @@
+@LinkTracker.Scrapper_HostAddress = http://localhost:5281
+
+GET {{LinkTracker.Scrapper_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
