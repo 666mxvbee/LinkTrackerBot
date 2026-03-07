@@ -37,4 +37,8 @@ This project uses .NET user secrets to securely store sensitive configuration da
    dotnet user-secrets set "BotOptions:ApiKey" "your-api-key-here"
    ```
 
+<<<<<<< HEAD
    Replace `"your-bot-token-here"` and `"your-api-key-here"` with your actual values.
+=======
+   Replace `"your-bot-token-here"` and `"your-api-key-here"` with your actual values.
+>>>>>>> 954caf3e09a0006e14e10fe615a6aebddedc5601
