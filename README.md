@@ -8,8 +8,6 @@
 
 
 
-
-
 1. Clone the repository:
 
 
@@ -27,8 +25,8 @@
 
 
 
-
 2. Restore dependencies:
+
 
 
    ```bash
@@ -115,4 +113,4 @@ This project uses .NET user secrets to securely store sensitive configuration da
 
 
 
-   Replace `"your-bot-token-here"` and `"your-api-key-here"` with your actual values.
+Replace `"your-bot-token-here"` and `"your-api-key-here"` with your actual values.
