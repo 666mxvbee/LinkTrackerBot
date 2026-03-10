@@ -1,34 +1,17 @@
-using LinkTracker.Bot.Repositories;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using LinkTracker.Bot.Clients;
 
 namespace LinkTracker.Bot.Commands;
 
-public class StartCommand : IBotCommand
+public class StartCommand(IScrapperClient scrapper) : IBotCommand
 {
-    private readonly IUserRepository _userRepository;
+    public string Name => "/start";
+    public string Description => "Start the bot and register";
     
-    public string Command => "/start";
-    public string Description => "Starts a bot.";
-
-    public StartCommand(IUserRepository userRepository)
+    public async Task ExecuteAsync(ITelegramBotClient bot, Message msg, CancellationToken ct)
     {
-        _userRepository = userRepository;
-    }
-
-    public async Task ExecuteAsync(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
-    {
-        long userId = message.Chat.Id;
-        string username = message.From?.Username ?? "Unknown";
-
-        if (!await _userRepository.UserExistsAsync(userId, cancellationToken))
-        {
-            await _userRepository.AddUserAsync(userId, username, cancellationToken);
-        }
-        
-        await botClient.SendMessage(
-            chatId: message.Chat.Id,
-            text: "Welcome! Use /help to see all available commands.",
-            cancellationToken: cancellationToken);
+        await scrapper.RegisterChat(msg.Chat.Id);
+        await bot.SendMessage(msg.Chat.Id, "Welcome! Use /track to add a link.", cancellationToken: ct);
     }
 }

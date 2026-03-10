@@ -1,19 +1,21 @@
-<Project Sdk="Microsoft.NET.Sdk.Worker">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
-  <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>dotnet-LinkTracker.Bot-7977f597-9871-427f-93f6-06701aee8569</UserSecretsId>
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+      <UserSecretsId>80388a47-c24e-44d3-b360-f03b222fc3aa</UserSecretsId>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.8" />
-    <PackageReference Include="Refit.HttpClientFactory" Version="10.0.1" />
-    <PackageReference Include="Telegram.Bot" Version="22.9.5.3" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.10" />
+        <PackageReference Include="Refit" Version="10.0.1" />
+        <PackageReference Include="Refit.HttpClientFactory" Version="10.0.1" />
+        <PackageReference Include="Telegram.Bot" Version="22.9.0" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\LinkTracker.Shared\LinkTracker.Shared.csproj" />
-  </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\LinkTracker.Shared\LinkTracker.Shared.csproj" />
+    </ItemGroup>
+
 </Project>

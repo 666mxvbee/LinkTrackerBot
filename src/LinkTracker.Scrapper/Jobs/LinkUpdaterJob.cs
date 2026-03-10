@@ -72,7 +72,7 @@ public class LinkUpdaterJob(
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Error while checking links {Url}", url);
+                logger.LogError(ex, "Error");
             }
         }
     }

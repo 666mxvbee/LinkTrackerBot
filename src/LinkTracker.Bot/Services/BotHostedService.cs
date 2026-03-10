@@ -1,6 +1,4 @@
 using LinkTracker.Bot.Commands;
-using LinkTracker.Bot.Configuration;
-using Microsoft.Extensions.Options;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
@@ -16,17 +14,12 @@ public class BotHostedService : BackgroundService
     private readonly ILogger<BotHostedService> _logger;
 
     public BotHostedService(
-        IOptions<BotOptions> options,
+        ITelegramBotClient botClient,
         CommandDispatcher dispatcher,
         IEnumerable<IBotCommand> commands,
         ILogger<BotHostedService> logger)
     {
-        if (string.IsNullOrWhiteSpace(options.Value.BotToken))
-        {
-            throw new InvalidOperationException("Bot token is not configured.");
-        }
-        
-        _botClient = new TelegramBotClient(options.Value.BotToken);
+        _botClient = botClient;
         _dispatcher = dispatcher;
         _commands = commands;
         _logger = logger;
@@ -36,30 +29,38 @@ public class BotHostedService : BackgroundService
     {
         var botCommands = _commands.Select(c => new BotCommand
         {
-            Command = c.Command.TrimStart('/'),
+            Command = c.Name.TrimStart('/'), 
             Description = c.Description
         }).ToList();
-        
-        await _botClient.SetMyCommands(botCommands, cancellationToken: stoppingToken);
-        _logger.LogInformation("Bot commands registered successfully.");
-        
+
+        try 
+        {
+            await _botClient.SetMyCommands(botCommands, cancellationToken: stoppingToken);
+            _logger.LogInformation("Bot commands registered successfully in Telegram menu.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to set bot commands.");
+        }
+
         var receiverOptions = new ReceiverOptions
         {
             AllowedUpdates = Array.Empty<UpdateType>(),
         };
         
-        _botClient.StartReceiving(
+        await _botClient.ReceiveAsync(
             updateHandler: HandleUpdateAsync,
-            errorHandler: HandleErrorAsync,
+            HandleErrorAsync,
             receiverOptions: receiverOptions,
             cancellationToken: stoppingToken);
-        
-        _logger.LogInformation("LinkTracker Bot started receiving updates.");
     }
-    
+
     private async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
     {
-        if (update.Message is not { } message) return;
+        if (update.Message is not { Text: { } } message)
+            return;
+
+        _logger.LogInformation("Received message from {ChatId}: {Text}", message.Chat.Id, message.Text);
         
         await _dispatcher.HandleMessageAsync(botClient, message, cancellationToken);
     }

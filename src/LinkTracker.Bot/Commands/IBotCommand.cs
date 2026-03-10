@@ -5,7 +5,7 @@ namespace LinkTracker.Bot.Commands;
 
 public interface IBotCommand
 {
-    string Command { get; }
+    string Name { get; }
     string Description { get; }
-    Task ExecuteAsync(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken);
+    Task ExecuteAsync(ITelegramBotClient bot, Message msg, CancellationToken ct);
 }
