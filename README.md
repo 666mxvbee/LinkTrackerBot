@@ -113,4 +113,8 @@ This project uses .NET user secrets to securely store sensitive configuration da
 
 
 
+<<<<<<< HEAD
 Replace `"your-bot-token-here"` and `"your-api-key-here"` with your actual values.
+=======
+   Replace `"your-bot-token-here"` and `"your-api-key-here"` with your actual values.
+>>>>>>> 98b4592f243f7dc9b32d755ae43aa06e836bcdc0
