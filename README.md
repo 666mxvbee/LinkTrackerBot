@@ -74,47 +74,32 @@ This project uses .NET user secrets to securely store sensitive configuration da
 
 
 
-### Setting Up User Secrets
+Local Development Setup
 
+To run the project locally, you need to initialize and set up the required secrets. Navigate to the LinkTracker.Bot directory and run the following commands:
 
+    Initialize User Secrets:
+    Bash
 
+dotnet user-secrets init
 
+Configure the Bot Token:
+Replace <your-telegram-token> with the token provided by @BotFather.
+Bash
 
-1. Initialize user secrets for the project:
+dotnet user-secrets set "BotConfiguration:BotToken" "<your-telegram-token>"
 
+Configure the Scrapper URL:
+Set the base address for the Scrapper service (usually http://localhost:5000 or similar):
+Bash
 
-   ```bash
+    dotnet user-secrets set "BotConfiguration:ScrapperUrl" "http://localhost:5000"
 
+Verifying Secrets
 
-   dotnet user-secrets init
+You can verify your configured secrets by running:
+Bash
 
+dotnet user-secrets list
 
-   ```
-
-
-
-
-
-2. Set your bot token and other secrets:
-
-
-   ```bash
-
-
-   dotnet user-secrets set "BotOptions:Token" "your-bot-token-here"
-
-
-   dotnet user-secrets set "BotOptions:ApiKey" "your-api-key-here"
-
-
-   ```
-
-
-
-
-
-<<<<<<< HEAD
-Replace `"your-bot-token-here"` and `"your-api-key-here"` with your actual values.
-=======
-   Replace `"your-bot-token-here"` and `"your-api-key-here"` with your actual values.
->>>>>>> 98b4592f243f7dc9b32d755ae43aa06e836bcdc0
+    Note: User Secrets are only used during development. For production environments, these values should be provided via Environment Variables.
