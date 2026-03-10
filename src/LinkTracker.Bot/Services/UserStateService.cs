@@ -4,7 +4,8 @@ public enum UserState
 {
     Idle,
     TrackAwaitingUrl,
-    TrackAwaitingTags
+    TrackAwaitingTags,
+    UntrackAwaitingUrl,
 }
 
 public class UserSession

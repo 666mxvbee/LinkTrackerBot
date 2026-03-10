@@ -13,4 +13,7 @@ public interface IScrapperClient
 
     [Get("/links")]
     Task<IEnumerable<LinkResponse>> GetLinks([Header("Tg-Chat-Id")] long chatId);
+    
+    [Delete("/links")]
+    Task<LinkResponse> RemoveLink([Header("Tg-Chat-Id")] long chatId, [Body] RemoveLinkRequest request);
 }

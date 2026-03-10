@@ -34,6 +34,7 @@ builder.Services.AddTransient<IBotCommand, StartCommand>();
 builder.Services.AddTransient<IBotCommand, HelpCommand>();
 builder.Services.AddTransient<IBotCommand, TrackCommand>();
 builder.Services.AddTransient<IBotCommand, ListCommand>();
+builder.Services.AddTransient<IBotCommand, UntrackCommand>();
 
 builder.Services.AddHostedService<BotHostedService>();
 

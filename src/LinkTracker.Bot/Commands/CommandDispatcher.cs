@@ -78,5 +78,23 @@ public class CommandDispatcher(
             }
             finally { stateService.ResetSession(chatId); }
         }
+        else if (session.State == UserState.UntrackAwaitingUrl)
+        {
+            try
+            {
+                await scrapperClient.RemoveLink(chatId, new RemoveLinkRequest(text!));
+
+                await bot.SendMessage(chatId, $"The link is successfully deleted: {text}", cancellationToken: ct);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error removing link for chat {ChatId}", chatId);
+                await bot.SendMessage(chatId, "Error: Couldn't delete the link. It may not be followed.", cancellationToken: ct);
+            }
+            finally
+            {
+                stateService.ResetSession(chatId);
+            }
+        }
     }
 }
