@@ -1,105 +1,40 @@
 # LinkTracker Bot
 
+LinkTracker is a microservice-based system that monitors GitHub repositories and StackOverflow questions, sending real-time update notifications via Telegram.
 
+## Project Structure
 
+    src/LinkTracker.Bot - ASP.NET Core Web API for Telegram interaction.
 
+    src/LinkTracker.Scrapper - Quartz-based worker for resource monitoring.
 
-## Installation
+    src/LinkTracker.Shared - Common models and DTOs shared between services.
 
+## Quick Start (Docker)
 
+The easiest way to run the entire infrastructure is using Docker Compose.
 
-1. Clone the repository:
+### 1. Prerequisites
+* [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running.
+* A Telegram Bot Token from [@BotFather](https://t.me/botfather).
 
+### 2. Configuration
+Create a file named `.env` in the root directory of the project:
 
-   ```bash
+```env
+TELEGRAM_BOT_TOKEN=your_token_here
+```
+Note: The .env file is ignored by git for security purposes.
 
+### 3. Launch
 
-   git clone https://github.com/yourusername/LinkTracker.Bot.git
-
-
-   cd LinkTracker.Bot
-
-
-   ```
-
-
-
-
-2. Restore dependencies:
-
-
-
-   ```bash
-
-
-   dotnet restore
-
-
-   ```
-
-
-
-
-
-3. Configure user secrets (see Configuration section below).
-
-
-
-
-
-4. Build the project:
-
-
-   ```bash
-
-
-   dotnet build
-
-
-   ```
-
-
-
-
-
-## Configuration
-
-
-
-
-
-This project uses .NET user secrets to securely store sensitive configuration data like API keys and tokens. User secrets are stored locally and are not committed to version control.
-
-
-
-
-
-Local Development Setup
-
-To run the project locally, you need to initialize and set up the required secrets. Navigate to the LinkTracker.Bot directory and run the following commands:
-
-    Initialize User Secrets:
-    Bash
-
-dotnet user-secrets init
-
-Configure the Bot Token:
-Replace <your-telegram-token> with the token provided by @BotFather.
+Run the following command in the root folder:
 Bash
 
-dotnet user-secrets set "BotConfiguration:BotToken" "<your-telegram-token>"
+docker-compose up --build
 
-Configure the Scrapper URL:
-Set the base address for the Scrapper service (usually http://localhost:5000 or similar):
-Bash
+Once started:
 
-    dotnet user-secrets set "BotConfiguration:ScrapperUrl" "http://localhost:5000"
+    Bot API: http://localhost:5100
 
-Verifying Secrets
-
-You can verify your configured secrets by running:
-Bash
-
-dotnet user-secrets list
-
-    Note: User Secrets are only used during development. For production environments, these values should be provided via Environment Variables.
+    Scrapper API: http://localhost:5000

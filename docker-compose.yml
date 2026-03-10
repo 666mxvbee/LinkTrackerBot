@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  bot:
+    build:
+      context: .
+      dockerfile: src/LinkTracker.Bot/Dockerfile
+    ports:
+      - "5100:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - BotConfiguration__BotToken=${TELEGRAM_BOT_TOKEN}
+      - BotConfiguration__ScrapperUrl=http://scrapper:8080
+    depends_on:
+      - scrapper
+
+  scrapper:
+    build:
+      context: .
+      dockerfile: src/LinkTracker.Scrapper/Dockerfile
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - BotUrl=http://bot:8080
