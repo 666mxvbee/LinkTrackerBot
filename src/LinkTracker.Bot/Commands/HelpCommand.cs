@@ -14,8 +14,8 @@ public class HelpCommand : IBotCommand
                    "/start - Register in the system\n" +
                    "/track - Start tracking a new link\n" +
                    "/help - Show this message\n" +
-                   "/list - Show your tracked links" +
-                   "  └ _Tip: Use_ `/list <tag>` _to filter by category_";
+                   "/list - Show your tracked links\n" +
+                   "  └Tip: Use '/list <tag>' to filter by category";
         
         await botClient.SendMessage(message.Chat.Id, text, cancellationToken: ct);
     }
