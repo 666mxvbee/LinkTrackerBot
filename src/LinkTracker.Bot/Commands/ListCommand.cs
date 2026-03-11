@@ -8,7 +8,7 @@ namespace LinkTracker.Bot.Commands;
 public class ListCommand(IScrapperClient scrapper, ILogger<ListCommand> logger) : IBotCommand
 {
     public string Name => "/list";
-    public string Description => "Show all tracked links";
+    public string Description => "Show tracked links (use: /list <tag> for filter)";
 
     public async Task ExecuteAsync(ITelegramBotClient bot, Message msg, CancellationToken ct)
     {

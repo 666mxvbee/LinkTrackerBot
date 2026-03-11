@@ -13,8 +13,9 @@ public class HelpCommand : IBotCommand
         var text = "Available commands:\n" +
                    "/start - Register in the system\n" +
                    "/track - Start tracking a new link\n" +
-                   "/list - Show your tracked links\n" +
-                   "/help - Show this message";
+                   "/help - Show this message\n" +
+                   "/list - Show your tracked links" +
+                   "  └ _Tip: Use_ `/list <tag>` _to filter by category_";
         
         await botClient.SendMessage(message.Chat.Id, text, cancellationToken: ct);
     }

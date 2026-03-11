@@ -12,6 +12,6 @@ public class StartCommand(IScrapperClient scrapper) : IBotCommand
     public async Task ExecuteAsync(ITelegramBotClient bot, Message msg, CancellationToken ct)
     {
         await scrapper.RegisterChat(msg.Chat.Id);
-        await bot.SendMessage(msg.Chat.Id, "Welcome! Use /track to add a link.", cancellationToken: ct);
+        await bot.SendMessage(msg.Chat.Id, "Welcome! Use /help to see all the commands or /track to add a link.", cancellationToken: ct);
     }
 }
