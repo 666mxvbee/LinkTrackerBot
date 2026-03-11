@@ -21,7 +21,21 @@ public class CommandDispatcher(
 
         if (messageText.StartsWith("/"))
         {
-            var commandName = messageText.Split(' ')[0];
+            var commandName = messageText.Split(' ')[0].ToLower();
+
+            if (commandName == "/cancel")
+            {
+                if (session.State == UserState.Idle)
+                {
+                    await bot.SendMessage(chatId, "There is nothing to cancel.", cancellationToken: ct);
+                }
+                else
+                {
+                    stateService.ResetSession(chatId);
+                    await bot.SendMessage(chatId, "Operation cancelled.", cancellationToken: ct);
+                }
+                return;
+            }
             
             if (session.State != UserState.Idle && commandName != "/track")
             {
