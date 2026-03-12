@@ -21,6 +21,13 @@ public class ListCommand(IScrapperClient scrapper, ILogger<ListCommand> logger) 
         try
         {
             var response = await scrapper.GetLinks(chatId, tagFilter);
+
+            if (response?.Links == null)
+            {
+                await bot.SendMessage(chatId, "No data received from service.", cancellationToken: ct);
+                return;
+            }
+            
             var linkList = response.Links.ToList();
 
             if (linkList.Count == 0)
@@ -37,11 +44,18 @@ public class ListCommand(IScrapperClient scrapper, ILogger<ListCommand> logger) 
                 ? "📋 *Your tracked links:*" 
                 : $"📋 *Links with tag '{tagFilter}':*";
 
-            var messageText = $"{header}\n\n" + string.Join("\n", linkList.Select((l, i) => 
+            var messageLines = linkList.Select((l, i) =>
             {
-                var tagsPart = l.Tags.Length > 0 ? $" _{string.Join(", ", l.Tags)}_" : "";
-                return $"{i + 1}. {l.Url}{tagsPart}";
-            }));
+                var safeUrl = l.Url.Replace("_", "\\_");
+                var tags = l.Tags ?? Array.Empty<string>();
+                var safeTags = tags.Select(t => t.Replace("_", "\\_"));
+                var tagsPart = tags.Length > 0 
+                    ? $" _{string.Join(", ", safeTags)}_" 
+                    : "";
+                return $"{i + 1}. {safeUrl}{tagsPart}";
+            });
+
+            var messageText = $"{header}\n\n" + string.Join("\n", messageLines);
 
             await bot.SendMessage(
                 chatId: chatId,
@@ -51,7 +65,7 @@ public class ListCommand(IScrapperClient scrapper, ILogger<ListCommand> logger) 
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error fetching links for chat {ChatId} with tag {Tag}", chatId, tagFilter);
+            logger.LogError(ex, "ListCommand failed for chat {ChatId}. Details: {Message}", chatId, ex.ToString());
             await bot.SendMessage(chatId, "❌ Sorry, I couldn't fetch your links right now. Try again later.", cancellationToken: ct);
         }
     }

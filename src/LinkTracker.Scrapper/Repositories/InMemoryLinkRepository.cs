@@ -34,10 +34,24 @@ public class InMemoryLinkRepository : ILinkRepository
         _userLinks.TryGetValue(chatId, out var links) && links.RemoveAll(l => l.Url == url) > 0;
 
     public IEnumerable<LinkResponse> GetLinks(long chatId) =>
-        _userLinks.TryGetValue(chatId, out var links) ? links : [];
+        _userLinks.TryGetValue(chatId, out var links) ? links.ToList() : Enumerable.Empty<LinkResponse>();
 
-    public IEnumerable<(string Url, long[] ChatIds, DateTimeOffset LastUpdate)> GetLinksForUpdate() =>
-        _linkMetadata.Select(m => (m.Key, _userLinks.Where(u => u.Value.Any(l => l.Url == m.Key)).Select(u => u.Key).ToArray(), m.Value));
+    public IEnumerable<(string Url, long[] ChatIds, DateTimeOffset LastUpdate)> GetLinksForUpdate()
+    {
+        return _linkMetadata.Select(m => 
+        {
+            var url = m.Key;
+            var lastUpdate = m.Value;
 
+            var chatIds = _userLinks
+                .Where(u => u.Value.Any(l => l.Url == url))
+                .Select(u => u.Key)
+                .Distinct()
+                .ToArray();
+
+            return (url, chatIds, lastUpdate);
+        }).ToList();
+    }
+    
     public void UpdateLastCheckTime(string url, DateTimeOffset lastUpdate) => _linkMetadata[url] = lastUpdate;
 }

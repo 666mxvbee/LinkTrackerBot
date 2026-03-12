@@ -49,30 +49,44 @@ public class LinkUpdaterJob(
                     }
                 }
 
-                if (currentUpdateFromApi.HasValue && currentUpdateFromApi > lastUpdate)
+                if (currentUpdateFromApi.HasValue)
                 {
-                    logger.LogInformation("Found a new update for {Url}. Was: {Old}, Now: {New}", url, lastUpdate, currentUpdateFromApi);
-
-                    var updateReq = new LinkUpdate(
-                        Id: 0,
-                        Url: url,
-                        Description: $"there is a new activity in repo or in question! (Date: {currentUpdateFromApi:g})", TgChatIds: chatIds);
-
-                    var response = await botClient.PostAsJsonAsync("/updates", updateReq);
-
-                    if (response.IsSuccessStatusCode)
+                    if (currentUpdateFromApi > lastUpdate)
                     {
-                        repo.UpdateLastCheckTime(url, currentUpdateFromApi.Value);
+                        logger.LogInformation("Found a new update for {Url}. Was: {Old}, Now: {New}", url, lastUpdate,
+                            currentUpdateFromApi);
+                        var updateReq = new LinkUpdate(
+                            Id: 0,
+                            Url: url,
+                            Description:
+                            $"there is a new activity in repo or in question! (Date: {currentUpdateFromApi:g})",
+                            TgChatIds: chatIds);
+
+                        var response = await botClient.PostAsJsonAsync("/updates", updateReq);
+
+                        if (response.IsSuccessStatusCode)
+                        {
+                            repo.UpdateLastCheckTime(url, currentUpdateFromApi.Value);
+                        }
                     }
                     else
                     {
-                        logger.LogWarning("Bot disable notification for {Url}. Code: {Code}", url, response.StatusCode);
+                        repo.UpdateLastCheckTime(url, DateTimeOffset.Now);
                     }
+                }
+            }
+            catch (Refit.ApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                logger.LogWarning("Link {Url} is dead (404). Cleaning up...", url);
+                foreach (var chatId in chatIds)
+                {
+                    repo.RemoveLink(chatId, url);
                 }
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Error");
+                logger.LogError(ex, "Transient error for {Url}. Skipping this tick.", url);
+                repo.UpdateLastCheckTime(url, DateTimeOffset.UtcNow);
             }
         }
     }
