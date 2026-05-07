@@ -5,3 +5,6 @@ public record RemoveLinkRequest(string Link);
 public record LinkResponse(long Id, string Url, string[] Tags);
 public record LinkUpdate(long Id, string Url, string Description, long[] TgChatIds);
 public record ListLinksResponse(LinkResponse[] Links, int Size);
+public record CreateTagRequest(string Name);
+public record UpdateTagRequest(string Name);
+public record TagResponse(long Id, string Name);
