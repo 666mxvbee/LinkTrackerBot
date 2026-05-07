@@ -11,8 +11,12 @@
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.8" />
     <PackageReference Include="Quartz.Extensions.Hosting" Version="3.16.1" />
     <PackageReference Include="Refit" Version="10.0.1" />
-      <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     <PackageReference Include="System.Net.Http.Json" Version="10.0.3" />
+    <PackageReference Include="Npgsql" Version="10.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.14" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.0" />
+    <PackageReference Include="dbup-postgresql" Version="7.0.1" />
   </ItemGroup>
 
   <ItemGroup>
@@ -25,4 +29,10 @@
     </Content>
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="..\..\migrations\**\*.sql">
+      <Link>migrations\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 </Project>
