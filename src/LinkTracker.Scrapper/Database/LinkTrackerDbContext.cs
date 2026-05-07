@@ -9,7 +9,7 @@ public class LinkTrackerDbContext(DbContextOptions<LinkTrackerDbContext> options
     
     public DbSet<LinkEntity> Links => Set<LinkEntity>();
     
-    public DbSet<ChatLinkEntity> ChatLink => Set<ChatLinkEntity>();
+    public DbSet<ChatLinkEntity> ChatLinks => Set<ChatLinkEntity>();
     
     public DbSet<TagEntity> Tags => Set<TagEntity>();
     
@@ -127,6 +127,15 @@ public class LinkTrackerDbContext(DbContextOptions<LinkTrackerDbContext> options
 
             entity.HasOne(chatLinkTag => chatLinkTag.ChatLink)
                 .WithMany(chatLink => chatLink.ChatLinkTags)
+                .HasForeignKey(chatLinkTag => new
+                {
+                    chatLinkTag.ChatId,
+                    chatLinkTag.LinkId
+                })
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            entity.HasOne(chatLinkTag => chatLinkTag.Tag)
+                .WithMany(tag => tag.ChatLinkTags)
                 .HasForeignKey(chatLinkTag => chatLinkTag.TagId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
