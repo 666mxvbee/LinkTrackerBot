@@ -2,13 +2,17 @@ using Quartz;
 using LinkTracker.Scrapper.Repositories;
 using LinkTracker.Scrapper.Clients;
 using LinkTracker.Scrapper.Jobs;
+using LinkTracker.Scrapper.Configuration;
+using LinkTracker.Scrapper.Database;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
+builder.Services.Configure<DatabaseOptions>(
+    builder.Configuration.GetSection(DatabaseOptions.SectionName));
 
 builder.Services.AddSingleton<ILinkRepository, InMemoryLinkRepository>();
 
@@ -36,6 +40,8 @@ builder.Services.AddQuartz(q => {
 builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 
 var app = builder.Build();
+
+MigrationRunner.Run(app.Services);
 
 if (app.Environment.IsDevelopment()) {
     app.UseSwagger();
