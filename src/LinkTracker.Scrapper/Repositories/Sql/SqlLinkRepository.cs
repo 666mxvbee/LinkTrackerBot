@@ -9,7 +9,7 @@ public class SqlLinkRepository(NpgsqlDataSource dataSource) : ILinkRepository
     public void AddChat(long chatId)
     {
         using var command = dataSource.CreateCommand($"INSERT INTO chats (id) VALUES (@chatId) ON CONFLICT DO NOTHING;");
-        
+
         command.Parameters.AddWithValue("chatId", chatId);
         command.ExecuteNonQuery();
     }
@@ -17,7 +17,7 @@ public class SqlLinkRepository(NpgsqlDataSource dataSource) : ILinkRepository
     public void RemoveChat(long chatId)
     {
         using var command = dataSource.CreateCommand($"DELETE FROM chats WHERE id = @chatId;");
-        
+
         command.Parameters.AddWithValue("chatId", chatId);
         command.ExecuteNonQuery();
     }
@@ -25,14 +25,14 @@ public class SqlLinkRepository(NpgsqlDataSource dataSource) : ILinkRepository
     public bool ChatExists(long chatId)
     {
         using var command = dataSource.CreateCommand($"SELECT EXISTS (SELECT 1 FROM chats WHERE id = @chatId);");
-        
+
         command.Parameters.AddWithValue("chatId", chatId);
-        
+
         var result = command.ExecuteScalar();
         return result is bool exists && exists;
     }
-    
-       public LinkResponse? AddLink(long chatId, string url, string[]? tags)
+
+    public LinkResponse? AddLink(long chatId, string url, string[]? tags)
     {
         var normalizedTags = NormalizeTags(tags);
 
@@ -210,7 +210,7 @@ public class SqlLinkRepository(NpgsqlDataSource dataSource) : ILinkRepository
 
         command.Parameters.AddWithValue("url", url);
 
-        var result = command.ExecuteScalar() 
+        var result = command.ExecuteScalar()
                      ?? throw new InvalidOperationException($"Unable to find link with url {url}");
         return (long)result;
     }
@@ -250,7 +250,7 @@ public class SqlLinkRepository(NpgsqlDataSource dataSource) : ILinkRepository
 
         command.Parameters.AddWithValue("name", name);
 
-        var result = command.ExecuteScalar() 
+        var result = command.ExecuteScalar()
                      ?? throw new InvalidOperationException($"Tag id was not returned from db");
         return (long)result;
     }

@@ -15,7 +15,7 @@ public class LinksController(ILinkRepository repo) : ControllerBase
         {
             return NotFound("Chat is not registered");
         }
-        
+
         var links = repo.GetLinks(chatId).ToList();
 
         if (!string.IsNullOrEmpty(tag))
@@ -26,8 +26,8 @@ public class LinksController(ILinkRepository repo) : ControllerBase
         }
 
         var responseLinks = links.Select(l => new LinkResponse(
-            l.Id, 
-            l.Url, 
+            l.Id,
+            l.Url,
             l.Tags ?? Array.Empty<string>()
         )).ToArray();
 
@@ -63,7 +63,7 @@ public class LinksController(ILinkRepository repo) : ControllerBase
         {
             return NotFound("Link is not registered");
         }
-        
+
         return Ok(req);
     }
 }

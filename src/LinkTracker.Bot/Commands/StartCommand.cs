@@ -8,7 +8,7 @@ public class StartCommand(IScrapperClient scrapper) : IBotCommand
 {
     public string Name => "/start";
     public string Description => "Start the bot and register";
-    
+
     public async Task ExecuteAsync(ITelegramBotClient bot, Message msg, CancellationToken ct)
     {
         await scrapper.RegisterChat(msg.Chat.Id);

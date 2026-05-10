@@ -13,14 +13,14 @@ builder.Services.AddControllers();
 
 builder.Services.Configure<BotOptions>(builder.Configuration.GetSection(BotOptions.SectionName));
 
-builder.Services.AddSingleton<ITelegramBotClient>(sp => 
+builder.Services.AddSingleton<ITelegramBotClient>(sp =>
 {
     var options = sp.GetRequiredService<IOptions<BotOptions>>().Value;
     return new TelegramBotClient(options.BotToken);
 });
 
 builder.Services.AddRefitClient<IScrapperClient>()
-    .ConfigureHttpClient((sp, client) => 
+    .ConfigureHttpClient((sp, client) =>
     {
         var options = sp.GetRequiredService<IOptions<BotOptions>>().Value;
         client.BaseAddress = new Uri(options.ScrapperUrl);
@@ -40,6 +40,6 @@ builder.Services.AddHostedService<BotHostedService>();
 
 var app = builder.Build();
 
-app.MapControllers(); 
+app.MapControllers();
 
 app.Run();

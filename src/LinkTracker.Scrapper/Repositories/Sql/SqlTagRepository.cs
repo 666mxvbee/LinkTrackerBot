@@ -7,7 +7,7 @@ public class SqlTagRepository(NpgsqlDataSource dataSource) : ITagRepository
 {
     public TagResponse Create(string name)
     {
-        const string sql = 
+        const string sql =
             """
              WITH inserted AS (
                 INSERT INTO tags (name)
@@ -23,28 +23,28 @@ public class SqlTagRepository(NpgsqlDataSource dataSource) : ITagRepository
 
         using var command = dataSource.CreateCommand(sql);
         command.Parameters.AddWithValue("name", name.Trim());
-        
+
         using var reader = command.ExecuteReader();
         reader.Read();
-        
+
         return new TagResponse(reader.GetInt64(0), reader.GetString(1));
     }
 
     public TagResponse? Get(long id)
     {
         using var command = dataSource.CreateCommand($"SELECT id, name FROM tags WHERE id = @id");
-        
+
         command.Parameters.AddWithValue("id", id);
-        
+
         using var reader = command.ExecuteReader();
-        
+
         return reader.Read() ? new TagResponse(reader.GetInt64(0), reader.GetString(1)) : null;
     }
 
     public IEnumerable<TagResponse> GetAll(int offset = 0, int limit = 100)
     {
         using var command = dataSource.CreateCommand($"SELECT id, name FROM tags ORDER BY id LIMIT @limit OFFSET @offset");
-        
+
         AddPaginationParameters(command, offset, limit);
 
         using var reader = command.ExecuteReader();
@@ -61,21 +61,21 @@ public class SqlTagRepository(NpgsqlDataSource dataSource) : ITagRepository
     public TagResponse? Update(long id, string name)
     {
         using var command = dataSource.CreateCommand($"UPDATE tags SET name = @name WHERE id = @id RETURNING id, name");
-        
+
         command.Parameters.AddWithValue("id", id);
         command.Parameters.AddWithValue("name", name.Trim());
 
         using var reader = command.ExecuteReader();
-        
-        return reader.Read() ? new TagResponse(reader.GetInt64(0),  reader.GetString(1)) : null;
+
+        return reader.Read() ? new TagResponse(reader.GetInt64(0), reader.GetString(1)) : null;
     }
 
     public bool Delete(long id)
     {
         using var command = dataSource.CreateCommand($"DELETE FROM tags WHERE id = @id");
-        
+
         command.Parameters.AddWithValue("id", id);
-        
+
         return command.ExecuteNonQuery() > 0;
     }
 

@@ -9,9 +9,9 @@ public class GitHubClient(HttpClient httpClient, ILogger<GitHubClient> logger)
         try
         {
             httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("LinkTrackerBot/1.0");
-            
+
             var response = await httpClient.GetAsync($"https://api.github.com/repos/{owner}/{repo}");
-            
+
             if (!response.IsSuccessStatusCode)
             {
                 logger.LogWarning("GitHub API made error {Code} to {Owner}/{Repo}", response.StatusCode, owner, repo);
@@ -19,7 +19,7 @@ public class GitHubClient(HttpClient httpClient, ILogger<GitHubClient> logger)
             }
 
             var json = await response.Content.ReadFromJsonAsync<JsonElement>();
-            
+
             if (json.TryGetProperty("pushed_at", out var dateProp))
             {
                 return dateProp.GetDateTimeOffset();
@@ -29,7 +29,7 @@ public class GitHubClient(HttpClient httpClient, ILogger<GitHubClient> logger)
         {
             logger.LogError(ex, "Error GitHub API");
         }
-        
+
         return null;
     }
 }

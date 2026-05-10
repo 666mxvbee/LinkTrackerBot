@@ -29,11 +29,11 @@ public class BotHostedService : BackgroundService
     {
         var botCommands = _commands.Select(c => new BotCommand
         {
-            Command = c.Name.TrimStart('/'), 
+            Command = c.Name.TrimStart('/'),
             Description = c.Description
         }).ToList();
 
-        try 
+        try
         {
             await _botClient.SetMyCommands(botCommands, cancellationToken: stoppingToken);
             _logger.LogInformation("Bot commands registered successfully in Telegram menu.");
@@ -47,7 +47,7 @@ public class BotHostedService : BackgroundService
         {
             AllowedUpdates = Array.Empty<UpdateType>(),
         };
-        
+
         await _botClient.ReceiveAsync(
             updateHandler: HandleUpdateAsync,
             HandleErrorAsync,
@@ -61,7 +61,7 @@ public class BotHostedService : BackgroundService
             return;
 
         _logger.LogInformation("Received message from {ChatId}: {Text}", message.Chat.Id, message.Text);
-        
+
         await _dispatcher.HandleMessageAsync(botClient, message, cancellationToken);
     }
 

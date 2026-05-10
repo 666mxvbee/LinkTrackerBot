@@ -13,7 +13,7 @@ public interface IScrapperClient
 
     [Get("/links")]
     Task<ListLinksResponse> GetLinks([Header("Tg-Chat-Id")] long chatId, [Query] string? tag = null);
-    
+
     [Delete("/links")]
     Task<LinkResponse> RemoveLink([Header("Tg-Chat-Id")] long chatId, [Body] RemoveLinkRequest request);
 }

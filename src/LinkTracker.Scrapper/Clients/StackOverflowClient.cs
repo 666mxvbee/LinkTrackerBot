@@ -9,7 +9,7 @@ public class StackOverflowClient(HttpClient httpClient, ILogger<StackOverflowCli
         try
         {
             var url = $"https://api.stackexchange.com/2.3/questions/{questionId}?site=stackoverflow";
-            
+
             var response = await httpClient.GetAsync(url);
 
             if (!response.IsSuccessStatusCode)
@@ -19,7 +19,7 @@ public class StackOverflowClient(HttpClient httpClient, ILogger<StackOverflowCli
             }
 
             var json = await response.Content.ReadFromJsonAsync<JsonElement>();
-            
+
             if (json.TryGetProperty("items", out var items) && items.GetArrayLength() > 0)
             {
                 var firstItem = items[0];

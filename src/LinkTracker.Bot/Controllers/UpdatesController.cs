@@ -7,7 +7,7 @@ namespace LinkTracker.Bot.Controllers;
 [ApiController]
 [Route("updates")]
 public class UpdatesController(
-    ITelegramBotClient botClient, 
+    ITelegramBotClient botClient,
     ILogger<UpdatesController> logger) : ControllerBase
 {
     [HttpPost]

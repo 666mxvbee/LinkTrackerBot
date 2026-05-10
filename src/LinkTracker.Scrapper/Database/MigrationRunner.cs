@@ -23,7 +23,7 @@ public static class MigrationRunner
         {
             throw new InvalidOperationException("Database connection string is not configured.");
         }
-        
+
         var migrationsPath = Path.Combine(AppContext.BaseDirectory, "migrations");
 
         if (!Directory.Exists(migrationsPath))
@@ -36,7 +36,7 @@ public static class MigrationRunner
             .WithScriptsFromFileSystem(migrationsPath)
             .LogToConsole()
             .Build();
-        
+
         var result = upgrader.PerformUpgrade();
 
         if (!result.Successful)
