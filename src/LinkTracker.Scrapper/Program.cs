@@ -19,16 +19,18 @@ builder.Services.AddSingleton<ILinkRepository, InMemoryLinkRepository>();
 builder.Services.AddHttpClient<GitHubClient>();
 builder.Services.AddHttpClient<StackOverflowClient>();
 
-builder.Services.AddHttpClient("BotClient", client => {
+builder.Services.AddHttpClient("BotClient", client =>
+{
     var botUrl = builder.Configuration["BotUrl"] ?? "http://localhost:5100";
     client.BaseAddress = new Uri(botUrl);
 });
 
-builder.Services.AddQuartz(q => {
+builder.Services.AddQuartz(q =>
+{
     var jobKey = new JobKey("LinkUpdaterJob");
-    
+
     q.AddJob<LinkUpdaterJob>(opts => opts.WithIdentity(jobKey));
-    
+
     q.AddTrigger(opts => opts
         .ForJob(jobKey)
         .WithIdentity("LinkUpdaterJob-trigger")
@@ -43,7 +45,8 @@ var app = builder.Build();
 
 MigrationRunner.Run(app.Services);
 
-if (app.Environment.IsDevelopment()) {
+if (app.Environment.IsDevelopment())
+{
     app.UseSwagger();
     app.UseSwaggerUI();
 }

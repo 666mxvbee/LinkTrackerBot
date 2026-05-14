@@ -6,13 +6,13 @@ namespace LinkTracker.Scrapper.Database;
 public class LinkTrackerDbContext(DbContextOptions<LinkTrackerDbContext> options) : DbContext(options)
 {
     public DbSet<ChatEntity> Chats => Set<ChatEntity>();
-    
+
     public DbSet<LinkEntity> Links => Set<LinkEntity>();
-    
+
     public DbSet<ChatLinkEntity> ChatLinks => Set<ChatLinkEntity>();
-    
+
     public DbSet<TagEntity> Tags => Set<TagEntity>();
-    
+
     public DbSet<ChatLinkTagEntity> ChatLinkTags => Set<ChatLinkTagEntity>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -40,19 +40,19 @@ public class LinkTrackerDbContext(DbContextOptions<LinkTrackerDbContext> options
 
             entity.Property(link => link.Id)
                 .HasColumnName("id");
-            
+
             entity.Property(link => link.Url)
                 .HasColumnName("url")
                 .IsRequired();
-            
+
             entity.Property(link => link.LastCheckedAt)
                 .HasColumnName("last_checked_at")
                 .HasDefaultValueSql("NOW()");
-            
+
             entity.Property(link => link.CreatedAt)
                 .HasColumnName("created_at")
                 .HasDefaultValueSql("NOW()");
-            
+
             entity.HasIndex(link => link.Url)
                 .IsUnique();
         });
@@ -133,7 +133,7 @@ public class LinkTrackerDbContext(DbContextOptions<LinkTrackerDbContext> options
                     chatLinkTag.LinkId
                 })
                 .OnDelete(DeleteBehavior.Cascade);
-            
+
             entity.HasOne(chatLinkTag => chatLinkTag.Tag)
                 .WithMany(tag => tag.ChatLinkTags)
                 .HasForeignKey(chatLinkTag => chatLinkTag.TagId)

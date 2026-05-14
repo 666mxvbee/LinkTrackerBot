@@ -27,21 +27,21 @@ public class ListCommand(IScrapperClient scrapper, ILogger<ListCommand> logger) 
                 await bot.SendMessage(chatId, "No data received from service.", cancellationToken: ct);
                 return;
             }
-            
+
             var linkList = response.Links.ToList();
 
             if (linkList.Count == 0)
             {
-                var emptyMsg = tagFilter == null 
-                    ? "You are not tracking any links yet. Use /track to add one!" 
+                var emptyMsg = tagFilter == null
+                    ? "You are not tracking any links yet. Use /track to add one!"
                     : $"No links found with tag: *{tagFilter}*";
 
                 await bot.SendMessage(chatId, emptyMsg, parseMode: ParseMode.Markdown, cancellationToken: ct);
                 return;
             }
 
-            var header = tagFilter == null 
-                ? "📋 *Your tracked links:*" 
+            var header = tagFilter == null
+                ? "📋 *Your tracked links:*"
                 : $"📋 *Links with tag '{tagFilter}':*";
 
             var messageLines = linkList.Select((l, i) =>
@@ -49,8 +49,8 @@ public class ListCommand(IScrapperClient scrapper, ILogger<ListCommand> logger) 
                 var safeUrl = l.Url.Replace("_", "\\_");
                 var tags = l.Tags ?? Array.Empty<string>();
                 var safeTags = tags.Select(t => t.Replace("_", "\\_"));
-                var tagsPart = tags.Length > 0 
-                    ? $" _{string.Join(", ", safeTags)}_" 
+                var tagsPart = tags.Length > 0
+                    ? $" _{string.Join(", ", safeTags)}_"
                     : "";
                 return $"{i + 1}. {safeUrl}{tagsPart}";
             });

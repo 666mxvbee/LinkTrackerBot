@@ -15,7 +15,7 @@ public class CommandDispatcher(
     public async Task HandleMessageAsync(ITelegramBotClient bot, Message msg, CancellationToken ct)
     {
         if (msg.Text is not { } messageText) return;
-        
+
         var chatId = msg.Chat.Id;
         var session = stateService.GetSession(chatId);
 
@@ -36,7 +36,7 @@ public class CommandDispatcher(
                 }
                 return;
             }
-            
+
             if (session.State != UserState.Idle && commandName != "/track")
             {
                 stateService.ResetSession(chatId);
@@ -80,7 +80,7 @@ public class CommandDispatcher(
         else if (session.State == UserState.TrackAwaitingTags)
         {
             var tags = text?.ToLower() == "/skip" ? Array.Empty<string>() : text?.Split(',').Select(t => t.Trim()).ToArray();
-            try 
+            try
             {
                 await scrapperClient.AddLink(chatId, new AddLinkRequest(session.TempUrl!, tags));
                 await bot.SendMessage(chatId, "Success! Link added.", cancellationToken: ct);

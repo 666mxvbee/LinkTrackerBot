@@ -16,7 +16,7 @@ public class HelpCommand : IBotCommand
                    "/help - Show this message\n" +
                    "/list - Show your tracked links\n" +
                    "  └Tip: Use '/list <tag>' to filter by category";
-        
+
         await botClient.SendMessage(message.Chat.Id, text, cancellationToken: ct);
     }
 }
