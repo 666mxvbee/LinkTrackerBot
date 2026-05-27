@@ -35,8 +35,4 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Repositories\Orm\" />
-  </ItemGroup>
 </Project>

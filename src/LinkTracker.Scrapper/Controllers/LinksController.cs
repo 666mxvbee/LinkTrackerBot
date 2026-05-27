@@ -9,27 +9,18 @@ namespace LinkTracker.Scrapper.Controllers;
 public class LinksController(ILinkRepository repo) : ControllerBase
 {
     [HttpGet]
-    public IActionResult Get([FromHeader(Name = "Tg-Chat-Id")] long chatId, [FromQuery] string? tag = null)
+    public IActionResult Get(
+        [FromHeader(Name = "Tg-Chat-Id")] long chatId,
+        [FromQuery] string? tag = null,
+        [FromQuery] int offset = 0,
+        [FromQuery] int limit = 100)
     {
         if (!repo.ChatExists(chatId))
         {
             return NotFound("Chat is not registered");
         }
 
-        var links = repo.GetLinks(chatId).ToList();
-
-        if (!string.IsNullOrEmpty(tag))
-        {
-            links = links
-                .Where(l => l.Tags != null && l.Tags.Contains(tag, StringComparer.OrdinalIgnoreCase))
-                .ToList();
-        }
-
-        var responseLinks = links.Select(l => new LinkResponse(
-            l.Id,
-            l.Url,
-            l.Tags ?? Array.Empty<string>()
-        )).ToArray();
+        var responseLinks = repo.GetLinks(chatId, tag, offset, limit).ToArray();
 
         return Ok(new ListLinksResponse(responseLinks, responseLinks.Length));
     }
