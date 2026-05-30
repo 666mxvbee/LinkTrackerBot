@@ -1,5 +1,15 @@
 # LinkTracker
 
+[![.NET](https://github.com/666mxvbee/LinkTracker/actions/workflows/dotnet.yml/badge.svg)](https://github.com/666mxvbee/LinkTracker/actions/workflows/dotnet.yml)
+[![Docker Image CI](https://github.com/666mxvbee/LinkTracker/actions/workflows/docker-image.yml/badge.svg)](https://github.com/666mxvbee/LinkTracker/actions/workflows/docker-image.yml)
+[![License](https://img.shields.io/github/license/666mxvbee/LinkTracker)](LICENSE)
+[![Release](https://img.shields.io/github/v/release/666mxvbee/LinkTracker?include_prereleases&sort=semver)](https://github.com/666mxvbee/LinkTracker/releases)
+[![.NET 9](https://img.shields.io/badge/.NET-9.0-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](docker-compose.yml)
+[![Tests](https://img.shields.io/badge/tests-xUnit%20%2B%20Testcontainers-5A2D82)](tests/LinkTracker.Scrapper.Tests)
+[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20Docker-lightgrey)](docker-compose.yml)
+
 LinkTracker is a .NET 9 microservice application for tracking GitHub repositories and StackOverflow questions. The Bot service handles Telegram interaction, and the Scrapper service stores subscriptions, checks links on a schedule, and sends update notifications back to the Bot.
 
 ## Project Structure
