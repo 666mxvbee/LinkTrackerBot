@@ -1,40 +1,176 @@
-# LinkTracker Bot
+# LinkTracker
 
-LinkTracker is a microservice-based system that monitors GitHub repositories and StackOverflow questions, sending real-time update notifications via Telegram.
+LinkTracker is a .NET 9 microservice application for tracking GitHub repositories and StackOverflow questions. The Bot service handles Telegram interaction, and the Scrapper service stores subscriptions, checks links on a schedule, and sends update notifications back to the Bot.
 
 ## Project Structure
 
-    src/LinkTracker.Bot - ASP.NET Core Web API for Telegram interaction.
+```text
+src/LinkTracker.Bot       Telegram bot HTTP service
+src/LinkTracker.Scrapper  Subscription storage and scheduled update checker
+src/LinkTracker.Shared    Shared DTOs
+migrations/               SQL migrations applied by Scrapper on startup
+```
 
-    src/LinkTracker.Scrapper - Quartz-based worker for resource monitoring.
+## Prerequisites
 
-    src/LinkTracker.Shared - Common models and DTOs shared between services.
+- .NET 9 SDK
+- Docker Desktop
+- Telegram bot token from BotFather
 
-## Quick Start (Docker)
+## Configuration
 
-The easiest way to run the entire infrastructure is using Docker Compose.
-
-### 1. Prerequisites
-* [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running.
-* A Telegram Bot Token from [@BotFather](https://t.me/botfather).
-
-### 2. Configuration
-Create a file named `.env` in the root directory of the project:
+Create `.env` in the repository root:
 
 ```env
-TELEGRAM_BOT_TOKEN=your_token_here
+TELEGRAM_BOT_TOKEN=your-telegram-bot-token
+
+POSTGRES_DB=linktracker
+POSTGRES_USER=linktracker
+POSTGRES_PASSWORD=linktracker
 ```
-Note: The .env file is ignored by git for security purposes.
 
-### 3. Launch
+`.env` is ignored by git. Use `.env.example` as the template.
 
-Run the following command in the root folder:
-Bash
+Scrapper database settings are in `src/LinkTracker.Scrapper/appsettings.json`:
 
-docker-compose up --build
+```json
+"Database": {
+  "AccessType": "SQL",
+  "ConnectionString": "Host=localhost;Port=5433;Database=linktracker;Username=linktracker;Password=linktracker",
+  "RunMigrations": true
+}
+```
 
-Once started:
+`AccessType` can be:
 
-    Bot API: http://localhost:5100
+```text
+SQL  raw SQL repositories via Npgsql
+ORM  EF Core repositories
+```
 
-    Scrapper API: http://localhost:5000
+Scheduler settings:
+
+```json
+"Scrapper": {
+  "CheckIntervalSeconds": 30,
+  "BatchSize": 100,
+  "Parallelism": 4,
+  "GitHubBaseUrl": "https://api.github.com/",
+  "StackOverflowBaseUrl": "https://api.stackexchange.com/2.3/"
+}
+```
+
+`BatchSize` is clamped by the application to `50..500`. `Parallelism` controls how many links are processed concurrently.
+
+## Run With Docker Compose
+
+Run all services:
+
+```powershell
+docker compose up --build
+```
+
+Endpoints:
+
+```text
+Bot API:       http://localhost:5100
+Scrapper API: http://localhost:5000
+PostgreSQL:   localhost:5433
+```
+
+Inside Docker, Scrapper connects to PostgreSQL by service name:
+
+```text
+Host=postgres;Port=5432
+```
+
+## Run From IDE
+
+Start PostgreSQL first:
+
+```powershell
+docker compose up postgres -d
+```
+
+Then run the services from IDE or terminal:
+
+```powershell
+dotnet run --project src\LinkTracker.Scrapper
+dotnet run --project src\LinkTracker.Bot
+```
+
+Scrapper applies SQL migrations from `migrations/` automatically when `Database:RunMigrations` is `true`.
+
+## Useful Manual Checks
+
+List database tables:
+
+```powershell
+docker exec -e PGPASSWORD=linktracker linktracker-postgres psql -U linktracker -d linktracker -c "\dt"
+```
+
+Expected domain tables:
+
+```text
+chats
+links
+chat_links
+tags
+chat_link_tags
+```
+
+DbUp also creates:
+
+```text
+schemaversions
+```
+
+Open Scrapper Swagger:
+
+```text
+http://localhost:5000/swagger
+```
+
+Basic API flow:
+
+```text
+POST   /tg-chat/{id}
+POST   /links      with Tg-Chat-Id header
+GET    /links      with Tg-Chat-Id header
+DELETE /links      with Tg-Chat-Id header
+GET    /tags
+POST   /tags
+PUT    /tags/{id}
+DELETE /tags/{id}
+```
+
+## Update Checking
+
+Scrapper uses Quartz to periodically process tracked links in batches.
+
+For GitHub links, it detects new:
+
+```text
+Issue
+Pull request
+```
+
+For StackOverflow links, it detects new:
+
+```text
+Answer
+Question comment
+Answer comment
+```
+
+Notifications include:
+
+```text
+type of update
+title
+user name
+creation time
+text preview limited to 200 characters
+```
+
+The notification sender is abstracted behind `IMessageSender`. The current implementation is HTTP from Scrapper to Bot; another implementation such as Kafka can be added later without changing the scheduler business logic.
