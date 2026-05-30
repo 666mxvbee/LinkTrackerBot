@@ -1,93 +1,18 @@
-﻿using Quartz;
-using LinkTracker.Scrapper.Repositories;
-using System.Net.Http;
-using LinkTracker.Scrapper.Clients;
-using LinkTracker.Shared.Models;
+﻿using LinkTracker.Scrapper.Services.Updates;
+using Quartz;
 
 namespace LinkTracker.Scrapper.Jobs;
 
 public class LinkUpdaterJob(
-    ILinkRepository repo,
-    IHttpClientFactory httpClientFactory,
-    GitHubClient github,
-    StackOverflowClient stackOverflow,
+    LinkUpdateProcessor processor,
     ILogger<LinkUpdaterJob> logger) : IJob
 {
     public async Task Execute(IJobExecutionContext context)
     {
-        var botClient = httpClientFactory.CreateClient("BotClient");
+        logger.LogInformation("Link update check started");
 
-        foreach (var (url, chatIds, lastUpdate) in repo.GetLinksForUpdate())
-        {
-            if (chatIds.Length == 0)
-            {
-                continue;
-            }
+        await processor.ProcessAsync(context.CancellationToken);
 
-            DateTimeOffset? currentUpdateFromApi = null;
-
-            try
-            {
-                if (url.Contains("github.com"))
-                {
-                    var parts = url.TrimEnd('/').Split('/');
-                    if (parts.Length >= 2)
-                    {
-                        currentUpdateFromApi = await github.GetLastUpdate(parts[^2], parts[^1]);
-                    }
-                }
-                else if (url.Contains("stackoverflow.com"))
-                {
-                    var parts = url.Split('/');
-                    var questionsIndex = Array.IndexOf(parts, "questions");
-                    if (questionsIndex != -1 && parts.Length > questionsIndex + 1)
-                    {
-                        if (long.TryParse(parts[questionsIndex + 1], out var questionId))
-                        {
-                            currentUpdateFromApi = await stackOverflow.GetLastUpdate(questionId);
-                        }
-                    }
-                }
-
-                if (currentUpdateFromApi.HasValue)
-                {
-                    if (currentUpdateFromApi > lastUpdate)
-                    {
-                        logger.LogInformation("Found a new update for {Url}. Was: {Old}, Now: {New}", url, lastUpdate,
-                            currentUpdateFromApi);
-                        var updateReq = new LinkUpdate(
-                            Id: 0,
-                            Url: url,
-                            Description:
-                            $"there is a new activity in repo or in question! (Date: {currentUpdateFromApi:g})",
-                            TgChatIds: chatIds);
-
-                        var response = await botClient.PostAsJsonAsync("/updates", updateReq);
-
-                        if (response.IsSuccessStatusCode)
-                        {
-                            repo.UpdateLastCheckTime(url, currentUpdateFromApi.Value);
-                        }
-                    }
-                    else
-                    {
-                        repo.UpdateLastCheckTime(url, DateTimeOffset.Now);
-                    }
-                }
-            }
-            catch (Refit.ApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
-            {
-                logger.LogWarning("Link {Url} is dead (404). Cleaning up...", url);
-                foreach (var chatId in chatIds)
-                {
-                    repo.RemoveLink(chatId, url);
-                }
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Transient error for {Url}. Skipping this tick.", url);
-                repo.UpdateLastCheckTime(url, DateTimeOffset.UtcNow);
-            }
-        }
+        logger.LogInformation("Link update check finished");
     }
 }

@@ -1,25 +1,35 @@
-using Quartz;
-using LinkTracker.Scrapper.Repositories;
 using LinkTracker.Scrapper.Clients;
-using LinkTracker.Scrapper.Jobs;
 using LinkTracker.Scrapper.Configuration;
 using LinkTracker.Scrapper.Database;
-using LinkTracker.Scrapper.Repositories.Sql;
+using LinkTracker.Scrapper.Jobs;
+using LinkTracker.Scrapper.Repositories;
 using LinkTracker.Scrapper.Repositories.Orm;
+using LinkTracker.Scrapper.Repositories.Sql;
+using LinkTracker.Scrapper.Services.Notifications;
+using LinkTracker.Scrapper.Services.Updates;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
+using Quartz;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
 builder.Services.Configure<DatabaseOptions>(
     builder.Configuration.GetSection(DatabaseOptions.SectionName));
+
+builder.Services.Configure<ScrapperOptions>(
+    builder.Configuration.GetSection(ScrapperOptions.SectionName));
 
 var databaseOptions = builder.Configuration
     .GetSection(DatabaseOptions.SectionName)
     .Get<DatabaseOptions>() ?? new DatabaseOptions();
+
+var scrapperOptions = builder.Configuration
+    .GetSection(ScrapperOptions.SectionName)
+    .Get<ScrapperOptions>() ?? new ScrapperOptions();
 
 builder.Services.AddSingleton(_ => NpgsqlDataSource.Create(databaseOptions.ConnectionString));
 
@@ -37,14 +47,31 @@ else
     builder.Services.AddScoped<ITagRepository, SqlTagRepository>();
 }
 
-builder.Services.AddHttpClient<GitHubClient>();
-builder.Services.AddHttpClient<StackOverflowClient>();
+builder.Services.AddHttpClient<GitHubClient>(client =>
+{
+    client.BaseAddress = new Uri(scrapperOptions.GitHubBaseUrl);
+    client.DefaultRequestHeaders.UserAgent.ParseAdd("LinkTrackerBot/1.0");
+});
+
+builder.Services.AddHttpClient<StackOverflowClient>(client =>
+{
+    client.BaseAddress = new Uri(scrapperOptions.StackOverflowBaseUrl);
+});
+
+builder.Services.AddScoped<ILinkUpdateChecker>(provider =>
+    provider.GetRequiredService<GitHubClient>());
+
+builder.Services.AddScoped<ILinkUpdateChecker>(provider =>
+    provider.GetRequiredService<StackOverflowClient>());
 
 builder.Services.AddHttpClient("BotClient", client =>
 {
     var botUrl = builder.Configuration["BotUrl"] ?? "http://localhost:5100";
     client.BaseAddress = new Uri(botUrl);
 });
+
+builder.Services.AddScoped<IMessageSender, HttpMessageSender>();
+builder.Services.AddScoped<LinkUpdateProcessor>();
 
 builder.Services.AddQuartz(q =>
 {
@@ -56,7 +83,7 @@ builder.Services.AddQuartz(q =>
         .ForJob(jobKey)
         .WithIdentity("LinkUpdaterJob-trigger")
         .WithSimpleSchedule(x => x
-            .WithIntervalInSeconds(30)
+            .WithIntervalInSeconds(Math.Max(1, scrapperOptions.CheckIntervalSeconds))
             .RepeatForever()));
 });
 
