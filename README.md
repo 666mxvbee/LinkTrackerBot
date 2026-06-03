@@ -183,4 +183,4 @@ creation time
 text preview limited to 200 characters
 ```
 
-The notification sender is abstracted behind `IMessageSender`. The current implementation is HTTP from Scrapper to Bot; another implementation such as Kafka can be added later without changing the scheduler business logic.
+The notification sender is abstracted behind `IMessageSender`. The current implementation is HTTP from Scrapper to Bot.
