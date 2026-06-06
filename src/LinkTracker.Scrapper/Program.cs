@@ -8,6 +8,7 @@ using LinkTracker.Scrapper.Repositories.Sql;
 using LinkTracker.Scrapper.Services.Notifications;
 using LinkTracker.Scrapper.Services.Updates;
 using Microsoft.EntityFrameworkCore;
+using System.Net.Http.Headers;
 using Npgsql;
 using Quartz;
 
@@ -51,6 +52,14 @@ builder.Services.AddHttpClient<GitHubClient>(client =>
 {
     client.BaseAddress = new Uri(scrapperOptions.GitHubBaseUrl);
     client.DefaultRequestHeaders.UserAgent.ParseAdd("LinkTrackerBot/1.0");
+    client.DefaultRequestHeaders.Accept.ParseAdd("application/vnd.github+json");
+    client.DefaultRequestHeaders.Add("X-GitHub-Api-Version", "2022-11-28");
+
+    if (!string.IsNullOrWhiteSpace(scrapperOptions.GitHubToken))
+    {
+        client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", scrapperOptions.GitHubToken);
+    }
 });
 
 builder.Services.AddHttpClient<StackOverflowClient>(client =>

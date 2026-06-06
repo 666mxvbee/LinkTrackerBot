@@ -25,6 +25,7 @@ services:
       - Database__AccessType=SQL
       - Database__ConnectionString=Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
       - Database__RunMigrations=true
+      - Scrapper__GitHubToken=${GITHUB_TOKEN}
     depends_on:
       postgres:
         condition: service_healthy
