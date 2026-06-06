@@ -10,4 +10,6 @@ public sealed class ScrapperOptions
 
     public string GitHubBaseUrl { get; init; } = "https://api.github.com/";
     public string StackOverflowBaseUrl { get; init; } = "https://api.stackexchange.com/2.3/";
+
+    public string? GitHubToken { get; init; }
 }
