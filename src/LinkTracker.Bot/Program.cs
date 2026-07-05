@@ -2,6 +2,7 @@ using LinkTracker.Bot.Commands;
 using LinkTracker.Bot.Configuration;
 using LinkTracker.Bot.Repositories;
 using LinkTracker.Bot.Services;
+using LinkTracker.Bot.Services.Notifications;
 using LinkTracker.Bot.Clients;
 using Telegram.Bot;
 using Refit;
@@ -29,6 +30,7 @@ builder.Services.AddRefitClient<IScrapperClient>()
 builder.Services.AddSingleton<IUserRepository, InMemoryUserRepository>();
 builder.Services.AddSingleton<UserStateService>();
 builder.Services.AddSingleton<CommandDispatcher>();
+builder.Services.AddSingleton<ILinkUpdateHandler, TelegramLinkUpdateHandler>();
 
 builder.Services.AddTransient<IBotCommand, StartCommand>();
 builder.Services.AddTransient<IBotCommand, HelpCommand>();
