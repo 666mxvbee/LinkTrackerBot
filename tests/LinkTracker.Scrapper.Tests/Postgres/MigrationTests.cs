@@ -29,6 +29,7 @@ public class MigrationTests(PostgresFixture fixture)
         Assert.Contains("chat_links", tables);
         Assert.Contains("tags", tables);
         Assert.Contains("chat_link_tags", tables);
+        Assert.Contains("notification_outbox", tables);
         Assert.Contains("schemaversions", tables);
     }
 }

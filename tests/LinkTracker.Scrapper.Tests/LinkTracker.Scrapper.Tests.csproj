@@ -8,8 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Confluent.Kafka" Version="2.15.0" />
     <PackageReference Include="coverlet.collector" Version="6.0.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="Testcontainers.Kafka" Version="4.10.0" />
     <PackageReference Include="Testcontainers.PostgreSql" Version="4.10.0" />
     <PackageReference Include="WireMock.Net" Version="2.7.0" />
     <PackageReference Include="xunit" Version="2.9.3" />
@@ -17,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\LinkTracker.Bot\LinkTracker.Bot.csproj" />
     <ProjectReference Include="..\..\src\LinkTracker.Scrapper\LinkTracker.Scrapper.csproj" />
   </ItemGroup>
 
