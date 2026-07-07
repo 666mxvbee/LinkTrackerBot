@@ -9,6 +9,7 @@ using LinkTracker.Scrapper.Services.Notifications;
 using LinkTracker.Scrapper.Services.Updates;
 using Microsoft.EntityFrameworkCore;
 using System.Net.Http.Headers;
+using Confluent.Kafka;
 using Npgsql;
 using Quartz;
 
@@ -24,6 +25,9 @@ builder.Services.Configure<DatabaseOptions>(
 builder.Services.Configure<ScrapperOptions>(
     builder.Configuration.GetSection(ScrapperOptions.SectionName));
 
+builder.Services.Configure<NotificationOptions>(
+    builder.Configuration.GetSection(NotificationOptions.SectionName));
+
 var databaseOptions = builder.Configuration
     .GetSection(DatabaseOptions.SectionName)
     .Get<DatabaseOptions>() ?? new DatabaseOptions();
@@ -31,6 +35,10 @@ var databaseOptions = builder.Configuration
 var scrapperOptions = builder.Configuration
     .GetSection(ScrapperOptions.SectionName)
     .Get<ScrapperOptions>() ?? new ScrapperOptions();
+
+var notificationOptions = builder.Configuration
+    .GetSection(NotificationOptions.SectionName)
+    .Get<NotificationOptions>() ?? new NotificationOptions();
 
 builder.Services.AddSingleton(_ => NpgsqlDataSource.Create(databaseOptions.ConnectionString));
 
@@ -79,7 +87,30 @@ builder.Services.AddHttpClient("BotClient", client =>
     client.BaseAddress = new Uri(botUrl);
 });
 
-builder.Services.AddScoped<IMessageSender, HttpMessageSender>();
+if (notificationOptions.Transport.Equals(NotificationTransports.Http, StringComparison.OrdinalIgnoreCase))
+{
+    builder.Services.AddScoped<IMessageSender, HttpMessageSender>();
+}
+else if (notificationOptions.Transport.Equals(NotificationTransports.Kafka, StringComparison.OrdinalIgnoreCase))
+{
+    builder.Services.AddSingleton<IProducer<string, string>>(_ =>
+        new ProducerBuilder<string, string>(new ProducerConfig
+        {
+            BootstrapServers = notificationOptions.Kafka.BootstrapServers,
+            Acks = Acks.All,
+            EnableIdempotence = true,
+            LingerMs = notificationOptions.Kafka.LingerMs,
+            ClientId = "linktracker-scrapper",
+        }).Build());
+
+    builder.Services.AddSingleton<IMessageSender, KafkaMessageSender>();
+}
+else
+{
+    throw new InvalidOperationException(
+        $"Unknown notification transport: {notificationOptions.Transport}. Use HTTP or Kafka.");
+}
+
 builder.Services.AddScoped<LinkUpdateProcessor>();
 
 builder.Services.AddQuartz(q =>
