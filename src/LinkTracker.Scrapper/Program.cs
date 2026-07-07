@@ -103,7 +103,9 @@ else if (notificationOptions.Transport.Equals(NotificationTransports.Kafka, Stri
             ClientId = "linktracker-scrapper",
         }).Build());
 
-    builder.Services.AddSingleton<IMessageSender, KafkaMessageSender>();
+    builder.Services.AddSingleton<IKafkaMessagePublisher, KafkaMessagePublisher>();
+    builder.Services.AddScoped<IMessageSender, OutboxMessageSender>();
+    builder.Services.AddHostedService<KafkaOutboxDispatcher>();
 }
 else
 {

@@ -38,6 +38,8 @@ services:
       - Notifications__Kafka__Topic=link-updates
       - Notifications__Kafka__DlqTopic=link-updates-dlq
       - Notifications__Kafka__LingerMs=10
+      - Notifications__Kafka__OutboxBatchSize=100
+      - Notifications__Kafka__OutboxDispatchIntervalSeconds=5
     depends_on:
       postgres:
         condition: service_healthy

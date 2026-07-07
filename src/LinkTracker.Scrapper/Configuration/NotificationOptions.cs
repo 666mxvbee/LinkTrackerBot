@@ -25,4 +25,8 @@ public sealed class KafkaProducerOptions
     public string DlqTopic { get; init; } = "link-updates-dlq";
 
     public int LingerMs { get; init; } = 10;
+
+    public int OutboxBatchSize { get; init; } = 100;
+
+    public int OutboxDispatchIntervalSeconds { get; init; } = 5;
 }
