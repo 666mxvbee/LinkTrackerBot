@@ -8,8 +8,7 @@ namespace LinkTracker.Scrapper.Tests.Postgres;
 
 public sealed class PostgresFixture : IAsyncLifetime
 {
-    private readonly PostgreSqlContainer _container = new PostgreSqlBuilder()
-        .WithImage("postgres:16")
+    private readonly PostgreSqlContainer _container = new PostgreSqlBuilder("postgres:16")
         .WithDatabase("linktracker_tests")
         .WithUsername("linktracker")
         .WithPassword("linktracker")
@@ -46,6 +45,7 @@ public sealed class PostgresFixture : IAsyncLifetime
         await using var connection = await DataSource.OpenConnectionAsync();
         await using var command = new NpgsqlCommand("""
             TRUNCATE TABLE
+                notification_outbox,
                 chat_link_tags,
                 chat_links,
                 tags,
